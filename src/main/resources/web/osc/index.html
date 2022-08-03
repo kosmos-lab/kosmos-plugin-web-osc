@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" value="notranslate">
+    <title>KosmoS OSC View</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" crossorigin="anonymous">
+    <script src="/js/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <style>
+
+        .full {
+            max-width: 100vw;
+            max-height: 100vh;
+
+            display: block;
+            position: absolute;
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0
+        }
+
+        @media only screen and (min-width: 3000px) {
+            img, video {
+                -moz-transform: scale(2);
+                -ms-transform: scale(2);
+                -o-transform: scale(2);
+                -webkit-transform: scale(2);
+                transform: scale(2);
+            }
+        }
+
+        body {
+            overflow: hidden; /* Hide scrollbars */
+        }
+
+        #main {
+            width: 100%;
+            height: 100vh;
+
+        }
+
+        #content {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <script>
+
+        const queryString = window.location.search;
+        console.log(queryString);
+        const urlParams = new URLSearchParams(queryString);
+
+        function connect() {
+            let wsurl = `ws://${window.location.hostname}:${window.location.port}/osc/ws`;
+            //if possible get location from window
+            if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
+
+                if (window.location.protocol == "https:") {
+                    wsurl = `wss://${window.location.hostname}:${window.location.port}/osc/ws`;
+                }
+
+            }
+
+            const ws = new WebSocket(wsurl);
+            ws.onopen = function () {
+                // subscribe to some channels
+                ws.send(JSON.stringify({
+                    "type": "setTarget",
+                    "value": urlParams.get("target")
+
+                }));
+            };
+
+            ws.onmessage = function (e) {
+                console.log("Message:", e.data);
+                const json = JSON.parse(e.data);
+
+            };
+
+            ws.onclose = function (e) {
+                console.log("Socket is closed. Reconnect will be attempted in 1 second.", e.reason);
+                setTimeout(function () {
+                    connect();
+                }, 1000);
+            };
+
+            ws.onerror = function (err) {
+                console.error("Socket encountered error: ", err.message, "Closing socket");
+                ws.close();
+            };
+        }
+
+
+        window.addEventListener("load", function () {
+
+            connect();
+        });
+    </script>
+
+
+</head>
+<body>
+<div class="container" id="main">
+    <div class="container" id="content">
+
+    </div>
+
+</div>
+
+</body>
+</html>

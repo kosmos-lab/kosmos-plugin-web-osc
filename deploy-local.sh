@@ -1,0 +1,1 @@
+mvn install && cp target/*.zip ../Platform/plugins

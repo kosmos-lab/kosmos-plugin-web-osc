@@ -1,0 +1,26 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - run: mvn --batch-mode --update-snapshots clean package
+      - run: mkdir staging && cp target/*.zip staging
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}
+          path: staging
