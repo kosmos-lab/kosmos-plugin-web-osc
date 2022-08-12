@@ -6,6 +6,8 @@ import de.kosmos_lab.kosmos.platform.web.WebServer;
 import de.kosmos_lab.kosmos.platform.web.WebSocketService;
 import de.kosmos_lab.platform.plugins.web.osc.OSCConstants;
 import de.kosmos_lab.platform.plugins.web.osc.OSCController;
+import de.kosmos_lab.platform.plugins.web.osc.data.OSCInput;
+import de.kosmos_lab.platform.plugins.web.osc.data.OSCOutput;
 import io.netty.util.internal.ConcurrentSet;
 import jakarta.websocket.server.ServerEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
@@ -40,6 +42,7 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
 
     ConcurrentHashMap<String, Set<Session>> mapTargetSessions = new ConcurrentHashMap<>();
     ConcurrentHashMap<String, JSONObject> mapTargetShow = new ConcurrentHashMap<>();
+
     public OSCWebSocket(WebServer server, IController controller) {
         this.server = server;
         this.controller = controller;
@@ -53,6 +56,7 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
     @Override
     @OnWebSocketConnect
     public void addWebSocketClient(Session session) {
+        logger.info("got new client {}",session);
         sessions.add(session);
 
 
@@ -61,7 +65,7 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
     @Override
     @OnWebSocketClose
     public void delWebSocketClient(Session session) {
-
+        logger.info("lost client {}",session);
         String t = mapSessionTarget.remove(session);
         if (t != null) {
             Set<Session> set = mapTargetSessions.get(t);
@@ -99,7 +103,6 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
     }
 
 
-
     public void broadCast(String message) {
         for (Session session : this.sessions) {
             try {
@@ -126,20 +129,39 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
 
     @Override
     @OnWebSocketMessage
-
     public void onWebSocketMessage(Session session, String message) {
+        logger.info("got WS message {}",message);
         try {
             JSONObject json = new JSONObject(message);
             if (json.has("type")) {
                 String type = json.getString("type");
-                if (type.equals(OSCConstants.WS_Type_setTarget)) {
-                    this.setTarget(session, json.getString("value"));
-                } else if (type.equals(OSCConstants.WS_Type_auth)) {
+                if (type.equals(OSCConstants.WS_Type_value)) {
+                    OSCOutput out = osc.getOutput(json.getString("output"));
+                    if ( out != null ) {
+                        OSCInput in = osc.getInput(json.getString("input"));
+                        if ( in != null ) {
+                            logger.info("setting {} to {}",in.getName(),json.getDouble("value"));
+                            out.setLevel(in, (float) json.getDouble("value"));
+                        }
+                        else {
+                            logger.warn("in not found");
+                        }
+                    }
+                    else {
+                        logger.warn("out not found");
+                    }
+
+                }
+                else if (type.equals(OSCConstants.WS_Type_auth)) {
                     IUser u = this.controller.tryLogin(json.getString("username"), json.getString("password"));
                     if (u != null) {
+
                         this.setAuth(session, u);
+                        logger.info("user authed to ws");
                         try {
                             session.getRemote().sendString(new JSONObject().put("type", OSCConstants.WS_Type_authSuccess).toString());
+                            session.getRemote().sendString(new JSONObject().put("type", OSCConstants.WS_Type_values).put("value", osc.getValues()).toString());
+
 
 
                         } catch (Exception e) {
@@ -164,7 +186,6 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
         mapSessionAuth.put(session, u);
 
     }
-
 
 
     public Set<Entry<String, Set<Session>>> getTargetSessions() {
@@ -199,8 +220,6 @@ public class OSCWebSocket extends WebSocketService implements ExtensionPoint {
                 ex.printStackTrace();
             }
         }
-
-
 
 
     }

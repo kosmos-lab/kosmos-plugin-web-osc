@@ -5,7 +5,7 @@
     <version>0.1</version>
     <artifactId>kosmos-plugin-web-osc</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Kiosk Web Plugin for KosmoS Platform</description>
+    <description>OSC Web Plugin for KosmoS Platform</description>
     <url>https://github.com/kosmos-lab/kosmos-plugin-web-osc</url>
     <issueManagement>
         <url>https://github.com/kosmos-lab/kosmos-plugin-web-osc/issues</url>

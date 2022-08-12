@@ -40,15 +40,12 @@ public class OSCClient extends Thread {
                 this.client = de.sciss.net.OSCClient.newUsing(de.sciss.net.OSCClient.UDP);    // create UDP client with any free port number
                 client.setTarget(new InetSocketAddress(this.host, this.port));
                 client.addOSCListener(this.listener);
-                client.dumpOutgoingOSC(1,System.err);
-                client.dumpIncomingOSC(1,System.out);
+                //client.dumpOutgoingOSC(1,System.err);
+                //client.dumpIncomingOSC(1,System.out);
                 client.start();
                 try {
                     client.send(new OSCMessage("/info"));
-                    for ( int ch = 0;ch<32;ch++) {
-                        //client.send(new OSCMessage(String.format("/ch/%02d/mix/fader"))
 
-                    }
                 } catch (IOException e1) {
                     e1.printStackTrace();
                     return;

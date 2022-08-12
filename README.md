@@ -2,7 +2,16 @@
 
 
 ## Description
-this is an example websocket Plugin, with static files found in the resources/web/ directory.
+This is a simple web ui for opensoundcontrol enabled devices.
+
+
+## Tested with
+* Behringer X32(Rack)
+* Behringer XR-18
+
+## Configuration
+Configuration needs to be placed in config/osc.
+There are currently 2 Examples for Behringer X32 and Behringer XR devices. (only differ in the port used)
 
 
 ## compile yourself

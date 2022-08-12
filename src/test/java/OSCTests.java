@@ -96,13 +96,7 @@ public class OSCTests {
                 }
             });
             //create a listener for targetList
-            adminWebSocket.addMessageHandler(Pattern.compile(String.format(".*\"type\":\"%s\".*", OSCConstants.WS_Type_targetList)), new SimpleWebSocketEndpoint.MessageHandler() {
-                public void handleMessage(String message) {
-                    //set the variable targetList to the current value
-                    JSONObject json = new JSONObject(message);
-                    adminWebSocket.set(id_targetList, json.getJSONArray("value"));
-                }
-            });
+
             adminWebSocket.addMessageHandler(Pattern.compile(".*\"type\":\"auth\\-.*"), new SimpleWebSocketEndpoint.MessageHandler() {
                 public void handleMessage(String message) {
 

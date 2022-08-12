@@ -1,0 +1,40 @@
+{
+    "outputs": [
+        {
+            "name": "main",
+            "type": "main"
+        },
+        {
+            "name": "sleeping",
+            "type": "aux1"
+        },
+        {
+            "name": "kitchen",
+            "type": "aux3"
+        },
+        {
+            "name": "living",
+            "type": "aux5"
+        }
+    ],
+    "port": 10024,
+    "inputs": [
+        {
+            "name": "A1",
+            "channel": [9]
+        },
+        {
+            "name": "A2",
+            "channel": [11]
+        },
+        {
+            "name": "A3",
+            "channel": [13]
+        },
+        {
+            "name": "A4",
+            "channel": [15]
+        }
+    ],
+    "host": "10.0.23.1"
+}
